@@ -1,0 +1,170 @@
+ENUM("Instruction:LD", "ld", "LOAD MEMORY R32", "%s $r%u = @$r%u", "LD/%u/%u.",
+"Load register 32",
+"RS(R32,P(0)) = MR32(RR(R32,P(1)))",
+"Indirect 32 bits register load to 32 bits register.\n"
+"Examples:\n"
+"  Parsing: ld $r1 = @$r2\n"
+"  Encoding: 'LD/1/2.'\n"
+"  Behavior: load into $r1 32 bits from memory location pointed by $r2\n"
+)
+
+ENUM("Instruction:ST", "st", "STORE MEMORY R32", "%s @$r%u = %u", "ST/%u/%u.",
+"Store register 32",
+"MS32(RR(R32,P(0))) = RR(R32,P(1))",
+"Indirect 32 bits register store from 32 bits register.\n"
+"Examples:\n"
+"  Parsing: st @$r2 = $r1\n"
+"  Encoding: 'ST/2/1.'\n"  
+"  Behavior: store 32 bits of $r1 to memory location pointed by $r2\n"
+)
+
+ENUM("Instruction:MV", "mov", "R32", "%s $r%u = %d", "MV/%u/%d.",
+"Move immediate integer 32",
+"RS(R32,P(0)) = P(1)",
+"Move 32 bits signed immediate to 32 bits register.\n"
+"Examples:\n"
+"  Parsing: mv $r0 = -3\n"
+"  Encoding: 'MV/0/-3.'\n"  
+"  Behavior: assign (-3) to $r0\n"
+)
+
+ENUM("Instruction:ADD", "add", "ADD R32 INT", "%s $r%u = $r%u, $r%u","AD/%u/%u/%u.",
+"Add integer 32",
+"RS(R32,P(0)) = RR(R32,P(1)) + RR(R32,P(2))",
+"Interger addition of 32 bits registers into a 32 bits register.\n"
+"Examples:\n"
+"  Parsing: add $r0 = $r1, $r2\n"
+"  Encoding: 'AD/0/1/2.'\n"  
+"  Behavior: assign ($r1 + $r2) to $r0\n"
+)
+
+ENUM("Instruction:SUB", "sub", "SUB R32 INT", "%s $r%u = $r%u, $r%u","SB/%u/%u/%u.",
+"Sub integer 32",
+"RS(R32,P(0)) = RR(R32,P(1)) - RR(R32,P(2))",
+"Integer substraction of 32 bits registers into a 32 bits register.\n"
+"Examples:\n"
+"  Parsing: sub $r0 = $r1, $r2\n"
+"  Encoding: 'SB/0/1/2.'\n"  
+"  Behavior: assign ($r1 - $r2) to $r0\n"
+)
+
+ENUM("Instruction:BR", "br", "BRANCH CONTROL", "%s %d", "BR/%d.",
+"Direct branch",
+"RS(PC,0) = RR(PC,0) + P(0)",
+"Relative branch to instruction through byte offset.\n"
+"Examples:\n"
+"  Parsing: br label\n"
+"  Encoding: 'BR/-8.'\n"  
+"  Behavior: branch to (PC - 8)\n"
+)
+
+ENUM("Instruction:BZ", "bz", "BRANCH COND CONTROL", "%s $r%u, %d", "BZ/%u/%d.",
+"Branch if zero",
+"if (RR(R32,P(0)) == 0) { RS(PC,0) = RR(PC,0) + P(1); }",
+"Conditional branch to instruction if 32 bits register is 0 through byte "
+"offset.\n"
+"Examples:\n"
+"  Parsing: bz $r1, label\n"
+"  Encoding: 'BZ/1/-8.'\n"
+"  Behavior: branch to (PC - 8) if $r1 == 0\n"
+)
+
+ENUM("Instruction:BN", "bn", "BRANCH COND CONTROL", "%s $r%u, %d", "BN/%u/%d.",
+"Branch if non zero",
+"if (RR(R32,P(0)) != 0) { RS(PC,0) = RR(PC,0) + P(1); }",
+"Conditional branch to instruction if 32 bits register is not 0 through byte "
+"offset.\n"
+"Examples:\n"
+"  Parsing: bn $r1, label\n"
+"  Encoding: 'BN/1/-8.'\n"
+"  Behavior: branch to (PC - 8) if $r1 != 0\n"
+)
+
+ENUM("Instruction:JR", "jr", "JUMP CONTROL", "%s $r%u", "JR/%u.",
+"Jump to register address",
+"RS(PC,0) = RR(R32,P(0))",
+"Jump to 32 bits address pointed by register.\n"
+"Examples:\n"
+"  Parsing: jr $r2\n"
+"  Encoding: 'JR/2.'\n"
+"  Behavior: jump to PC == value of $r2\n"
+)
+
+ENUM("Instruction:CALL", "call", "CALL CONTROL", "%s %d", "CA/%d.",
+"Call PC relative",
+"RS(R32,14) = NEXT_PC();\n"
+"RS(PC,0) = RR(PC, 0) + P(0)",
+"Call at PC relative address and save return address to $r14.\n"
+"Examples:\n"
+"  Parsing: call label\n"
+"  Encoding: 'CA/8.'\n"
+"  Behavior: jump to (PC + 8) and save return PC into $r14\n"
+)
+
+ENUM("Instruction:RET", "ret", "RETURN CONTROL", "%s", "RT.",
+"Return from call",
+"RS(PC,0) = RR(R32,14)",
+"Return from call to saved PC at $r14.\n"
+"Examples:\n"
+"  Parsing: ret\n"
+"  Encoding: 'RT.'\n"
+"  Behavior: jump to PC == $r14\n"
+)
+
+ENUM("Instruction:TRAP", "trap", "TRAP CONTROL", "%s %u", "TR/%u.",
+"Trap to interrupt",
+"RS(STAT,0) = 0;\n"
+"RS(SAVE,0) = RR(PC,0);\n"
+"RS(SAVE,1) = NEXT_PC();\n"
+"RS(SAVE,2) = RR(R32,15);\n"
+"RS(SAVE,3) = RR(R32,14);\n"
+"RS(SAVE,4) = RR(R32,13);\n"
+"RS(SAVE,5) = RR(R32,12);\n"
+"RS(PC,0) = RR(TRAP,P(0))",
+"Preserve user context, set priviledge mode and trap through indexed interrupt.\n"
+"Examples:\n"
+"  Parsing: trap 0\n"
+"  Encoding: 'TR/0.'\n"
+"  Behavior: save context (PC, NEXT_PC, SP, LR, GP, TL) and jump to PC == $tr0\n"
+)
+
+ENUM("Instruction:RI", "reti", "RTRAP CONTROL PRIV", "%s", "RI.",
+"Return from interrupt",
+"if (RR(STAT,0) == 0) {\n"
+"  RS(R32,12) = RR(SAVE,5);\n"
+"  RS(R32,13) = RR(SAVE,4);\n"
+"  RS(R32,14) = RR(SAVE,3);\n"
+"  RS(R32,15) = RR(SAVE,2);\n"
+"  RS(PC,0) = RR(SAVE,1);\n"
+"  RS(STAT,0) = 1;\n"
+"}",
+"Restore user context, disable priviledge mode and return to trap return address.\n"
+"Examples:\n"
+"  Parsing: reti 0\n"
+"  Encoding: 'RI.'\n"
+"  Behavior: restore context (SP, LR, GP, TL) and return to saved NEXT_PC\n"
+)
+
+ENUM("Instruction:MS", "mvs", "PRIV", "%s %u, %u", "MS/%u/%u.",
+"Set status register",
+"if (RR(STAT,0) == 0) {\n"
+"  RS(STAT,P(0)) = P(1);\n"
+"}",
+"Set status register to immediate value.\n"
+"Examples:\n"
+"  Parsing: mvs 0, 1\n"
+"  Encoding: 'MS/0/1.'\n"
+"  Behavior: assign value 1 to status register 0\n"
+)
+
+ENUM("Instruction:MT", "mvt", "PRIV", "%s %u, %u", "MT/%u/%u.",
+"Set trap register",
+"if (RR(STAT,0) == 0) {\n"
+"  RS(TRAP,P(0)) = P(1);\n"
+"}",
+"Set trap register to immediate value.\n"
+"Examples:\n"
+"  Parsing: mvt 0, 0\n"
+"  Encoding: 'MT/0/0.'\n"
+"  Behavior: assign address 0 to trap register 0\n"
+)
