@@ -34,12 +34,12 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <MDI/mdi.h>
-#include <MDI/mdi_utils.h>
+#include <MDI/mdi_operations.h>
 
 /*
  * The implemented MDI revision.
  */
-#define THIS_REVISION MDI_VERSION_MAKE_REV(0,1,0)
+#define THIS_REVISION MDI_VERSION_MAKE_REV(0,2,0)
 static const int mdi_revision = THIS_REVISION;
 
 #if THIS_REVISION != MDI_VERSION_REV
@@ -134,29 +134,6 @@ static const instruction_t instructions [] = {
 #undef ENUM
 #define INSTRUCTIONS_COUNT() (sizeof(instructions)/sizeof(*instructions))
 
-/* Assume no more than this number of operands for an operation. */
-#define OPERANDS_MAX 4
-typedef struct {
-    intptr_t buffer_addr;
-    size_t buffer_offset;
-} decode_info_t;
-
-typedef struct {
-    const char *filename;
-    size_t line;
-    size_t col;
-} parse_info_t;
-
-typedef struct {
-    uint32_t opcode;
-    uint32_t params[OPERANDS_MAX];
-    uint32_t opsize;
-    union {
-        decode_info_t decode;
-        parse_info_t parse;
-    } info;
-} operation_t;
-
 MDI_idx_t MDI_Instructions_count(MDI_interface_t self)
 {
     assert(self == mdi_interface);
@@ -193,6 +170,24 @@ MDI_str_t MDI_Instruction_properties(MDI_Instruction_t self)
 {
     assert((intptr_t)self >= 0 && (intptr_t)self < INSTRUCTIONS_COUNT());
     return instructions[(intptr_t)self].properties;
+}
+
+MDI_str_t MDI_Opcode_parsing(MDI_Opcode_t self)
+{
+    assert((intptr_t)self >= 0 && (intptr_t)self < INSTRUCTIONS_COUNT());
+    return instructions[(intptr_t)self].parsing;
+}
+
+MDI_str_t MDI_Opcode_encoding(MDI_Opcode_t self)
+{
+    assert((intptr_t)self >= 0 && (intptr_t)self < INSTRUCTIONS_COUNT());
+    return instructions[(intptr_t)self].encoding;
+}
+
+MDI_str_t MDI_Opcode_execution(MDI_Opcode_t self)
+{
+    assert((intptr_t)self >= 0 && (intptr_t)self < INSTRUCTIONS_COUNT());
+    return instructions[(intptr_t)self].execution;
 }
 
 MDI_idx_t MDI_Opcodes_count(MDI_interface_t self)
@@ -267,122 +262,3 @@ MDI_str_t MDI_Operator_attributes(MDI_Operator_t self)
     return instructions[(intptr_t)self].properties;
 }
 
-MDI_Operation_t MDI_Operation_decode(MDI_interface_t self, MDI_ptr_t buffer, MDI_size_t buffer_size, MDI_ptr_t *current_ptr)
-{
-    const char *start, *limit, *current;
-    const char *opcode, *opcode_end, *operator_end;
-    uint32_t params[OPERANDS_MAX];
-    int inst_idx;
-    operation_t *operation;
-
-    assert(buffer != NULL);
-    assert(current_ptr != NULL);
-    assert((const char *)*current_ptr >= (const char *)buffer && (const char *)*current_ptr < (const char *)buffer + buffer_size);
-
-    limit = (const char *)buffer + buffer_size;
-    start = (const char *)*current_ptr;
-    current = start;
-
-    /* Skip leading spaces. */
-    while(current < limit && isspace(*current))
-        current++;
-    opcode = current;
-
-    /* Count parameters and find end of opcode field. */
-    while (current < limit && *current != '.' && *current != '/') {
-        current++;
-    }
-    operator_end = current;
-
-    while (current < limit && *current != '.') {
-        current++;
-    }
-    opcode_end = current;
-
-    /* No opcode. */
-    if (current == limit) return (MDI_Operation_t)NULL;
-
-    /* Opcode match. */
-    for (inst_idx = 0; inst_idx < INSTRUCTIONS_COUNT(); inst_idx++) {
-        if (strncmp(opcode, instructions[inst_idx].encoding, operator_end - opcode) == 0 &&
-            (instructions[inst_idx].encoding[operator_end - opcode] == '.' ||
-             instructions[inst_idx].encoding[operator_end - opcode] == '/'))
-            break;
-    }
-
-    /* No opcode match. */
-    if (inst_idx == INSTRUCTIONS_COUNT()) return (MDI_Operation_t)NULL;
-    
-    /* Parse operation operands. Assume a limit of 4 operands. */
-    assert(OPERANDS_MAX <= 4);
-    params[0] = params[1] = params[2] = params[3] = 0;
-    sscanf(opcode, instructions[inst_idx].encoding,
-           params, params+1, params+2, params+3);
-
-    /* Skip trailing spaces. */
-    current = opcode_end + 1;
-    while(current < limit && isspace(*current))
-        current++;
-
-    operation = (operation_t *)calloc(1,sizeof(operation_t));
-    operation->opcode = inst_idx;
-    operation->opsize = current - start;
-    operation->params[0] = params[0];
-    operation->params[1] = params[1];
-    operation->params[2] = params[2];
-    operation->params[3] = params[3];
-    operation->info.decode.buffer_addr = (intptr_t)buffer;
-    operation->info.decode.buffer_offset = start - buffer;
-
-    *current_ptr = current;
-    return (MDI_Operation_t)operation;
-}
-
-MDI_size_t MDI_Operation_print(MDI_interface_t self, MDI_Operation_t operation, MDI_ptr_mut_t buffer, MDI_size_t buffer_size, MDI_ptr_mut_t *current_ptr)
-{
-    operation_t *operation_ptr;
-    char *current;
-    char *limit;
-    size_t offset;
-    size_t nbytes;
-    int size;
-    uint32_t *params;
-    size_t opcode;
-
-    assert(operation != NULL);
-    assert(buffer != NULL);
-    assert(current_ptr != NULL);
-    assert((const char *)*current_ptr >= (const char *)buffer && (const char *)*current_ptr < (const char *)buffer + buffer_size);
-
-    operation_ptr = (operation_t *)operation;
-    current = *current_ptr;
-    limit = buffer + buffer_size;
-    offset = current - buffer;
-    params = &operation_ptr->params[0];
-    opcode = operation_ptr->opcode;
-    nbytes = 0;
-
-    size = snprintf(current, limit - current, "L%"PRIuPTR":\t", offset);
-    nbytes += size;
-    if (size >= limit - current) current = limit;
-    else current += size;
-
-    size = snprintf(current, limit - current, instructions[opcode].parsing,
-                    instructions[opcode].mnemonic,
-                    params[0], params[1], params[2], params[3]);
-    nbytes += size;
-    if (size >= limit - current) current = limit;
-    else current += size;
-
-    size = snprintf(current, limit - current, "\t\t//@0x%"PRIxPTR,
-                    operation_ptr->info.decode.buffer_addr +
-                    operation_ptr->info.decode.buffer_offset);
-    if (size >= limit - current) current = limit;
-    else current += size;
-
-    if (nbytes >= buffer_size)
-        buffer[buffer_size-1] = '\0';
-
-    *current_ptr = current;
-    return nbytes;
-}

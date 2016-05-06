@@ -32,7 +32,7 @@ MDI_LIBS=
 TOOLS_PREFIX=$(PREFIX)
 
 ENUMS=mde/instructions.enum mde/platform.enum
-OBJS=mdi.o mdi_execution.o
+OBJS=mdi.o mdi_operation.o mdi_execution.o mdi_disassembler.o mdi_decoder.o
 LIB_A=libmdi.a
 LIB_SO=libmdi.so
 

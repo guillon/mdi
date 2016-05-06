@@ -33,7 +33,7 @@ class ENUM:
         print("#define MS32(idx) EXE_MEM_SLICE32(_mem,idx)", file=out)
         for inst in ENUM.instructions_list:
             print("", file=out)
-            print("static int32_t _execution_%i /* %s */ (EXE_CTX_T _context, EXE_OPS_T _operands, uint32_t _op_size)" %
+            print("static int32_t _execution_%i /* %s */ (EXE_CTX_T _context, EXE_OPS_T _operands, size_t _op_size)" %
                   (idx, inst.ID), file=out)
             print("{", file=out)
             print("  CPU_T _cpu, *_cpu_prev = EXE_CTX_CPU(_context);", file=out)
@@ -49,7 +49,7 @@ class ENUM:
             idx += 1
         print("#undef RF", file=out)
         print("#undef MEM", file=out)
-        print("typedef int32_t (*EXE_FUNC_T)(EXE_CTX_T _context, EXE_OPS_T _operands, uint32_t _op_size);", file=out);
+        print("typedef int32_t (*EXE_FUNC_T)(EXE_CTX_T _context, EXE_OPS_T _operands, size_t _op_size);", file=out);
         print("static const EXE_FUNC_T _executions[] = {", file=out)
         idx = 0
         for inst in ENUM.instructions_list:

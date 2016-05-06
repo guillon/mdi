@@ -69,7 +69,7 @@
  * Of course this is possible only if the two machine models are
  * somewhat compatible in term of described objects.
  *
- * Implementation notes at revision 0.1.0:
+ * Implementation notes at revision 0.2.0:
  *   - The current version defines a partial interface to
  *     the full MDD object model, this is to be completed.
  *   - A conformant implementation should implement the
@@ -79,17 +79,6 @@
  *     error. Said otherwise, do not provide an empty
  *     implementation, prefer to let the error raise at
  *     compile time.
- *   - For usage in binary utilities tools, such as
- *     assemblers, decoders, simulators, the main objects
- *     of interest is the MDI_Instruction_t which provides
- *     description in particular for parsing, decoding,
- *     execution and operator properties.
- *   - For usage in compiler the MDI_Operator_t provides
- *     additional information that may have been generated
- *     from the MDI_Instruction_t corresponding instruction.
- *     Also the MDI_Opcode_t provides more specific information
- *     regarding enconding constraints in some cases.
- *     Though, both these objects are not fully described.
  *
  */
 
@@ -111,7 +100,7 @@
 /** Full revision for this interface. */
 #define MDI_VERSION_REV MDI_VERSION_MAKE_REV(MDI_VERSION_MAJOR,MDI_VERSION_MINOR,MDI_VERSION_PATCH)
 #define MDI_VERSION_MAJOR 0  /**< Major version, incompatible both way when differ. */
-#define MDI_VERSION_MINOR 1  /**< Minor version, compatible if implementation is greater. */
+#define MDI_VERSION_MINOR 2  /**< Minor version, compatible if implementation is greater. */
 #define MDI_VERSION_PATCH 0  /**< Patch version, compatible both way when differ. */
 /**@}*/
 
@@ -508,6 +497,7 @@ MDI_INTERFACE MDI_str_t MDI_Instruction_mnemonic(MDI_Instruction_t self);
  * @return The properties string as a space separate list of identifiers. 
  */
 MDI_INTERFACE MDI_str_t MDI_Instruction_properties(MDI_Instruction_t self);
+
 /**@}*/
 
 /**
@@ -556,6 +546,42 @@ MDI_INTERFACE MDI_idx_t MDI_Opcode_idx(MDI_Opcode_t self);
  * @return The Opcode identifier.
  */
 MDI_INTERFACE MDI_str_t MDI_Opcode_ID(MDI_Opcode_t self);
+
+/**
+ * @brief Get Opcode encoding information.
+ *
+ * Returns the Opcode encoding string.
+ * The opcode encoding is an implementation defined string which
+ * is available to Encoders and Decoders instances.
+ *
+ * @param self The Opcode.
+ * @return The decoding string.
+ */
+MDI_INTERFACE MDI_str_t MDI_Opcode_encoding(MDI_Opcode_t self);
+
+/**
+ * @brief Get Opcode parsing information.
+ *
+ * Returns the Opcode parsing string.
+ * The parsing string is an implementation defined string which
+ * is available to Assemblers and Disassemblers instances.
+ *
+ * @param self The Opcode.
+ * @return The parsing string.
+ */
+MDI_INTERFACE MDI_str_t MDI_Opcode_parsing(MDI_Opcode_t self);
+
+/**
+ * @brief Get Opcode execution information.
+ *
+ * Returns the Opcode execution string.
+ * The execution string is an implementation defined string which
+ * is available to Executions instances.
+ *
+ * @param self The Opcode.
+ * @return The execution string.
+ */
+MDI_INTERFACE MDI_str_t MDI_Opcode_execution(MDI_Opcode_t self);
 
 /**
  * @brief Get the Instruction decoded through this opcode

@@ -42,5 +42,5 @@ $CC $CFLAGS $MDI_CFLAGS -c -o "$tmpdir"/mdi-validate.o "$mdi_validate_c"
 $CCLD $LDFLAGS $MDI_LDFLAGS "$tmpdir"/mdi-validate.o -o "$tmpdir"/mdi-validate  "$mdi_lib"
 
 [ "$VERBOSE" = 0 ] || echo "Executing validation"
-[ "$VERBOSE" = 0 ] || echo "mdi-validate"
-"$tmpdir"/mdi-validate
+[ "$VERBOSE" = 0 ] || echo "${EXEC-} mdi-validate"
+${EXEC-} "$tmpdir"/mdi-validate

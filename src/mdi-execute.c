@@ -5,7 +5,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <MDI/mdi.h>
-#include <MDI/mdi_utils.h>
+#include <MDI/mdi_operations.h>
 
 static int verbose = 1;
 
@@ -16,6 +16,9 @@ int execute(MDI_interface_t interface, const char *input_fname)
     FILE *input;
     size_t nbytes;
     MDI_Execution_t execution = NULL;
+    MDI_Decoder_t decoder = NULL;
+    MDI_Disassembler_t disassembler = NULL;
+    MDI_res_t res;
     MDI_size_t stop_pc, next_pc;
     uint64_t count = 0;
 
@@ -36,7 +39,27 @@ int execute(MDI_interface_t interface, const char *input_fname)
         perror("");
         goto end_of_execute;
     }
-    MDI_Execution_init(&execution, NULL);
+
+    res = MDI_Decoder_init(&decoder, interface, (MDI_Processor_t)0, NULL);
+    if (res != 0) {
+        fprintf(stderr, "error creating Decoder\n");
+        goto end_of_execute;
+    }
+
+    if (verbose >= 2) {
+        res = MDI_Disassembler_init(&disassembler, interface, (MDI_Processor_t)0, NULL);
+        if (res != 0) {
+            fprintf(stderr, "error creating Disassembler\n");
+            goto end_of_execute;
+        }
+    }
+            
+    res = MDI_Execution_init(&execution, interface, (MDI_Processor_t)0, NULL);
+    if (res != 0) {
+        fprintf(stderr, "error creating Execution\n");
+        goto end_of_execute;
+    }
+
     next_pc = MDI_Execution_pc(execution);
     stop_pc = next_pc; /* Assume processor stopped if PC at reset is reach again. */
     fprintf(stdout, "Start of execution at PC: %"PRIuPTR"\n", next_pc);
@@ -51,7 +74,7 @@ int execute(MDI_interface_t interface, const char *input_fname)
         if (verbose >= 2) {
             fprintf(stderr, "%.16s[...]\n", current_ptr);
         }
-        operation = MDI_Operation_decode(interface, buffer, nbytes, (MDI_ptr_t *)&current_ptr);
+        operation = MDI_Decoder_decode(decoder, buffer, nbytes, (MDI_ptr_t *)&current_ptr);
         if (operation == NULL) {
             fprintf(stderr, "%s: invalid operation decode at PC: %"PRIuPTR"\n", input_fname, pc);
             goto end_of_execute;
@@ -63,15 +86,21 @@ int execute(MDI_interface_t interface, const char *input_fname)
         if (verbose >= 2) {
             static char print_buffer[32];
             MDI_ptr_mut_t current = print_buffer;
-            MDI_Operation_print(interface, operation, print_buffer, sizeof(print_buffer), &current);
+            MDI_Disassembler_disassemble(disassembler, operation, print_buffer, sizeof(print_buffer), &current);
             fprintf(stdout, "  op: %s\n", print_buffer);
         }
 
-        res = MDI_Operation_execute(execution, operation);
+        res = MDI_Execution_execute(execution, operation);
         if (res != 0) {
             fprintf(stderr, "%s: invalid operation execution at PC: %"PRIuPTR"\n", input_fname, pc);
             goto end_of_execute;
         }
+        if (MDI_Operation_decode_info(operation)) {
+            MDI_DecodeInfo_t decode_info = MDI_Operation_decode_info(operation);
+            MDI_DecodeInfo_fini(&decode_info);
+        }
+        MDI_Operation_fini(&operation);
+
         count += 1;
         next_pc = MDI_Execution_pc(execution);
         if (verbose >= 2) {
@@ -101,6 +130,8 @@ int execute(MDI_interface_t interface, const char *input_fname)
     }
     rcode = 0;
  end_of_execute:
+    if (decoder != NULL) MDI_Decoder_fini(&decoder);
+    if (disassembler != NULL) MDI_Disassembler_fini(&disassembler);
     if (execution != NULL) MDI_Execution_fini(&execution);
     if (input != NULL && input != stdin) fclose(input);
     return rcode;

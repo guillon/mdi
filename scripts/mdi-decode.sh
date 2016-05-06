@@ -44,5 +44,5 @@ $CC $CFLAGS $MDI_CFLAGS -c -o "$tmpdir"/mdi-decode.o "$mdi_decode_c"
 $CCLD $LDFLAGS $MDI_LDFLAGS "$tmpdir"/mdi-decode.o -o "$tmpdir"/mdi-decode  "$mdi_lib"
 
 [ "$VERBOSE" = 0 ] || echo "Decoding \"$input\" to \"$output\""
-[ "$VERBOSE" = 0 ] || echo "mdi-decode \"$input\" \"$output\""
-"$tmpdir"/mdi-decode "$input" "$output"
+[ "$VERBOSE" = 0 ] || echo "${EXEC-} mdi-decode \"$input\" \"$output\""
+${EXEC-} "$tmpdir"/mdi-decode "$input" "$output"

@@ -34,7 +34,7 @@ distclean: clean
 all-mdi:
 	mkdir -p $(BUILD_MDI)/include/MDI
 	cp -a include/MDI/mdi.h $(BUILD_MDI)/include/MDI/
-	cp -a include/MDI/mdi_utils.h $(BUILD_MDI)/include/MDI/
+	cp -a include/MDI/mdi_operations.h $(BUILD_MDI)/include/MDI/
 
 clean-mdi:
 	rm -rf $(BUILD_MDI)

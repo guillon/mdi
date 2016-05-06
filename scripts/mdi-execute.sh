@@ -43,5 +43,5 @@ $CC $CFLAGS $MDI_CFLAGS -c -o "$tmpdir"/mdi-execute.o "$mdi_execute_c"
 $CCLD $LDFLAGS $MDI_LDFLAGS "$tmpdir"/mdi-execute.o -o "$tmpdir"/mdi-execute  "$mdi_lib"
 
 [ "$VERBOSE" = 0 ] || echo "Executing \"$input\""
-[ "$VERBOSE" = 0 ] || echo "mdi-execute \"$input\""
-"$tmpdir"/mdi-execute "$input"
+[ "$VERBOSE" = 0 ] || echo "${EXEC-} mdi-execute \"$input\""
+${EXEC-} "$tmpdir"/mdi-execute "$input"

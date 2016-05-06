@@ -5,7 +5,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include <MDI/mdi.h>
-#include <MDI/mdi_utils.h>
+#include <MDI/mdi_operations.h>
 
 static int verbose = 2;
 
@@ -16,6 +16,8 @@ int print(MDI_interface_t interface, MDI_Operation_t *list, size_t list_size, co
     static char buffer[4096];
     char *current;
     int i;
+    MDI_Disassembler_t disassembler;
+    MDI_res_t res;
 
     if (strcmp(output_fname, "-") == 0) {
         output = stdout;
@@ -32,10 +34,16 @@ int print(MDI_interface_t interface, MDI_Operation_t *list, size_t list_size, co
         fprintf(stderr, "Start of Disassembly\n");
     }
 
+    res = MDI_Disassembler_init(&disassembler, interface, (MDI_Processor_t)0, NULL);
+    if (res != 0) {
+        fprintf(stderr, "error constructing Disassembler");
+        goto end_of_print;
+    }
+
     current = buffer;
     for (i = 0; i < list_size; i++) {
         char *next = current;
-        int nbytes = MDI_Operation_print(interface, list[i], buffer, sizeof(buffer), &next);
+        int nbytes = MDI_Disassembler_disassemble(disassembler, list[i], buffer, sizeof(buffer), &next);
         if (current + nbytes >= buffer + sizeof(buffer)) {
             fprintf(stderr, "not enough space to print");
             goto end_of_print;
@@ -43,6 +51,13 @@ int print(MDI_interface_t interface, MDI_Operation_t *list, size_t list_size, co
         fprintf(output, "  %s\n", current);
         current = next;
     }
+
+    res = MDI_Disassembler_fini(&disassembler);
+    if (res != 0) {
+        fprintf(stderr, "error destructing Disassembler");
+        goto end_of_print;
+    }
+
     if (verbose >= 1) {
         fprintf(stdout, "End of Disassembly.\n");
     }
@@ -63,6 +78,8 @@ int decode(MDI_interface_t interface, MDI_Operation_t **list, size_t *list_size,
     MDI_Operation_t operation;
     MDI_Operation_t *oplist = NULL;
     size_t opcount = 0;
+    MDI_Decoder_t decoder;
+    MDI_res_t res;
 
     if (strcmp(input_fname, "-") == 0) {
         input = stdin;
@@ -85,10 +102,16 @@ int decode(MDI_interface_t interface, MDI_Operation_t **list, size_t *list_size,
     if (verbose >= 1) {
         fprintf(stderr, "Start of Decode\n");
     }
-    
+
+    res = MDI_Decoder_init(&decoder, interface, (MDI_Processor_t)0, NULL);
+    if (res != 0) {
+        fprintf(stderr, "error constructing Decoder");
+        goto end_of_decode;
+    }
+
     while(current_offset < nbytes) {
         current_ptr = buffer + current_offset;
-        operation = MDI_Operation_decode(interface, buffer, nbytes, (MDI_ptr_t *)&current_ptr);
+        operation = MDI_Decoder_decode(decoder, buffer, nbytes, (MDI_ptr_t *)&current_ptr);
         if (operation == NULL) {
             fprintf(stderr, "%s: invalid operation at offset: %"PRIiPTR"\n", input_fname, current_offset);
             goto end_of_decode;
@@ -102,7 +125,12 @@ int decode(MDI_interface_t interface, MDI_Operation_t **list, size_t *list_size,
         oplist[opcount] = operation;
         opcount++;
     }
-
+    res = MDI_Decoder_fini(&decoder);
+    if (res != 0) {
+        fprintf(stderr, "error destructing Decoder");
+        goto end_of_decode;
+    }
+    
     *list = oplist;
     *list_size = opcount;
     if (verbose >= 1) {
