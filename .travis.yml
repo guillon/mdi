@@ -1,7 +1,21 @@
-env:
-  - CC=gcc
-  - CC=clang
-
+language: c
+compiler:
+  - gcc
+  - clang
+addons:
+  apt:
+    packages:
+      - doxygen
+      - python
 script:
-  - make all
-  - make install PREFIX=devimage
+  - make all CC=$CC && make install CC=$CC PREFIX=devimage
+deploy:
+  on:
+    repo: guillon/mdi
+    condition: $CC = gcc
+  provider: launchpad
+  slug: "~christophe-guillon/+junk/mdi-build"
+  oauth_token:
+    secure: LteFMETsWrK7LnYjGH0d5ZX11mBRsk4sSQoZSYqYOki6gO3KKXOD1DNSmpcEifha/nyig2UnG/8A77J8fXByZd7bR8xnhQpzUBdmlX8e9FO0yPy0C8MAbuTsg1arMI6LdAWnfixm9IKARQ7Ex1dyUrKfdAOZXgMU2PxqMJ4j3u1+d1FKw/CXKunwQo0Qff321TaLFAaaokUnPOCOvdR+q8aeiFb1w2plcYU2DjMydcCnhwRuKVlV0Q7h31SSzF+Yi6zUtTUd2Iz5Cih0+26grL3VZZcraiPeUhK3d24+Adsc07mCnFoV8XfqI6WdqJDOYtlJ0cfXE/Fg+rXv0WqAg6C2a4WH/NASAW8ehW9+lROYc31qmg62yFjYUF9K4TMps4ccdq5czkHv9v/LtowRpNRRdIOdDXArchUAm0+dNBk0rL+tUCrNDJi3HEMUD0I6VSXOnNMO5jifzRR1/4SNXejqcSrl4rNvNgJlAyLZjpP16zjGaAqvfvQ4vZFpQBtwkGwPxdRyIZfEzUv1DAhUKa8I6AXWiuV2sjeAnnZqKhAREESE8rSowmPgQAh8ysmACdxqZhRVDWXSqVmmUlmvJ357vM+x3B/lxmkKYY+ISzdKIp8VdyMO/T2LaTqTC9dXxfCxRgPaz6K+bvNac4TWqfGWrDpb8Dhgnc36Hs1u3R8=
+  oauth_token_secret:
+    secure: AhhZ06H6dMCb1+8WzRR4mVx+vg/Pbm032WSYTazM2KXz9OfRjOb6UlArMMxTozUIghkwWruTJv1tXxnR1MJ/J9ARcICDwErU6rQL+gsj19EeIP7aNsAPb51uqTEQLC3HoH1t18gm/gknelwqxi7oXVFB6aUAcO+PC5hmivGo/9LBrj3/gDk0ig3v3UJyCVw8IYxp48ymUvJDaPBLlDjefx8/FxYG5XB0MbDc5mZOhAPTHMtSq0FbRzcXa70DbkAhX4Ag4CaH7/uqDLwe8pc/ktPTc+FsgoMwyJv/a/ngjVD+VH1KXxggpLx6UBdnAktA1wv/TFnLkVwDhzdsQ9jS7me0kVSNb36sqF+TpeShcqDFhXlZLaCoC9ASuemMeKsovrvtVw8+MM1rLG7S2+UFCFP30p2pfaWidVtMQCzGATk5vT6VhwL7w0nQmZtKVQnJNRLaNlbxcc5j4ngwziDsIR6iZ+ZzMB62hOpkXFF5taCARPp+F7CETilfd3Oc4hthEGCYuglT00YX2FqZiXDsbxA9mdrosTVvm3aLb4qwmjt9qlQLOiO1wzSHAtga205oHyJFZKjArrN2WNL4p9l2tM4T7cKQYwdC/fZoY/7KFu89s8uQzFgj0TFkh0J5BfgFjFU/nypv5m9cUTLSMa4dWoHY2+nX4ehCTlOg72ZeEv8=
