@@ -1,0 +1,7 @@
+env:
+  - CC=gcc
+  - CC=clang
+
+script:
+  - make all
+  - make install PREFIX=devimage
