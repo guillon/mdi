@@ -70,6 +70,15 @@ Install the MDI Interface headers, doc and test with:
     $ sudo make install PREFIX=/usr/local # This is the default prefix
 
 
+Documentation
+=============
+
+Refer to the API documentation at https://guillon.github.io/mdi/doc/MDI/v0.2.
+
+In particular the abstract objects documentations is described in the Modules
+section of the documentation at
+https://guillon.github.io/mdi/doc/MDI/v0.2/modules.html.
+
 License
 =======
 
