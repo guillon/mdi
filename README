@@ -1,0 +1,79 @@
+Machine Description Interface
+=============================
+
+The Machine Description Interface (MDI) is an abstract
+API for access to some Machine Description System.
+
+The API gives access to constructor and destructor for an abstract interface
+object from which machine description elements can be accessed.
+
+There is also an API for managing Operations instances through some Decoder,
+Disassembler, Assembler, Encoder and Execution.
+
+Synopsis
+========
+
+An implementation of the API can be accessed for instance as:
+
+    /* mytest.c: printfs the list of instructions mnemonics. */
+
+    #include <assert.h>
+    #include <stdio.h>
+    #include <MDI/mdi.h>
+
+    int main(int argc, char *argv[]) {
+        MDI_rev_t rev;
+        MDI_res_t res;
+        MDI_idx_t idx;
+        MDI_interface_t interface;
+        res = MDI_interface_init(&interface, NULL);
+        assert(res == 0);
+
+        rev = MDI_interface_revision(interface);
+        assert(MDI_VERSION_REV_COMPATIBLE(MDI_VERSION_REV,rev));
+
+        for (idx = 0; idx < MDI_Instructions_count(interface); idx++) {
+            MDI_Instruction_t instruction;
+            instruction = MDI_Instructions_iter(interface, idx);
+            printf("Instruction idx %"MDI_PRIidx" mnemonic: %s\n", idx,
+                MDI_Instruction_mnemonic(instruction));
+        }
+
+        res = MDI_interface_fini(&interface);
+        assert(res == 0);
+        return 0;
+    }
+
+If the MDI implementation is available in libmytarget.a for instance, compile
+the test above with:
+
+    $ gcc -Wall -o mytest mytest.c libmytarget.a
+    $ ./mytest
+    Instruction idx 0 mnemonic: add
+    Instruction idx 1 mnemonic: sub
+    ...
+For testing, one can use the example MINI platform description as in:
+
+    $ gcc -Wall -o minitest mytest.c /usr/local/libexec/mdi/mini/libmdi.a
+    $ ./minitest
+    Instruction idx 0 mnemonic: ld
+    Instruction idx 1 mnemonic: st
+    ...
+
+
+Install
+=======
+
+Install the MDI Interface headers, doc and test with:
+
+    $ make all
+    $ sudo make install PREFIX=/usr/local # This is the default prefix
+
+
+License
+=======
+
+This software is provided under the term of the MIT License, ref to the
+COPYING file for details.
+
+Ref to the COPYRIGHT file for copyright information.

@@ -178,7 +178,7 @@ extern "C" {
 typedef uint32_t MDI_rev_t;     /**< API revision/versions holder. */
 #define MDI_PRIrev PRIu32       /**< Print format for MDI_rev_t. */
 typedef uint32_t MDI_idx_t;     /**< All static objects dense identifiers. */
-#define MDI_PRIid PRIu32        /**< Print format for MDI_idx_t. */
+#define MDI_PRIidx PRIu32       /**< Print format for MDI_idx_t. */
 typedef int32_t MDI_res_t;      /**< Return status, 0 is success. */
 #define MDI_PRIres PRIi32       /**< Print format for MDI_res_t. */
 typedef const char *MDI_str_t;  /**< C string (0 terminated) of char, always const. */
