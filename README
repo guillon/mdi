@@ -1,5 +1,7 @@
-Machine Description Interface
-=============================
+
+[![Build Status](https://api.travis-ci.org/guillon/mdi.png?branch=master)](https://travis-ci.org/guillon/mdi/branches)
+
+# Synopsis
 
 The Machine Description Interface (MDI) is an abstract
 API for access to some Machine Description System.
@@ -9,9 +11,6 @@ object from which machine description elements can be accessed.
 
 There is also an API for managing Operations instances through some Decoder,
 Disassembler, Assembler, Encoder and Execution.
-
-Synopsis
-========
 
 An implementation of the API can be accessed for instance as:
 
@@ -61,17 +60,18 @@ For testing, one can use the example MINI platform description as in:
     ...
 
 
-Install
-=======
+# Install
 
-Install the MDI Interface headers, doc and test with:
+Install the MDI Interface headers, doc and test from sources with:
 
+    $ git clone https://github.com/guillon/mdi.git
+    $ cd mdi
     $ make all
     $ sudo make install PREFIX=/usr/local # This is the default prefix
 
+Here is the list of dependencies: gcc, make, python, doxygen.
 
-Documentation
-=============
+# Documentation
 
 Refer to the API documentation at https://guillon.github.io/mdi/doc/MDI/v0.2.
 
@@ -79,8 +79,22 @@ In particular the abstract objects documentations is described in the Modules
 section of the documentation at
 https://guillon.github.io/mdi/doc/MDI/v0.2/modules.html.
 
-License
-=======
+# Examples
+
+An example implementation for an hypothetical platform called MINI is provided
+in https://github.com/guillon/mdi/tree/master/examples/mini.
+
+# References
+
+Go to Home page at https://guillon.github.io/mdi.
+
+Get documentation at http://guillon.github.io/mdi/doc/MDI/v0.2.
+
+Get sources at https://github.com/guillon/mdi.
+
+Check build status at https://travis-ci.org/guillon/mdi/branches.
+
+# License
 
 This software is provided under the term of the MIT License, ref to the
 COPYING file for details.
