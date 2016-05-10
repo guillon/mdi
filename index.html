@@ -19,7 +19,9 @@
     </section>
 
     <section class="main-content">
-      <h1>
+      <p><a href="https://travis-ci.org/guillon/mdi/branches"><img src="https://api.travis-ci.org/guillon/mdi.png?branch=master" alt="Build Status"></a></p>
+
+<h1>
 <a id="machine-description-interface" class="anchor" href="#machine-description-interface" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Machine Description Interface</h1>
 
 <p>The Machine Description Interface (MDI) is an abstract
@@ -88,11 +90,15 @@ Instruction idx 1 mnemonic: st
 <h1>
 <a id="install" class="anchor" href="#install" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Install</h1>
 
-<p>Install the MDI Interface headers, doc and test with:</p>
+<p>Install the MDI Interface headers, doc and test from sources with:</p>
 
-<pre><code>$ make all
+<pre><code>$ git clone https://github.com/guillon/mdi.git
+$ cd mdi
+$ make all
 $ sudo make install PREFIX=/usr/local # This is the default prefix
 </code></pre>
+
+<p>Here is the list of dependencies: gcc, make, python, doxygen.</p>
 
 <h1>
 <a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Documentation</h1>
@@ -102,6 +108,23 @@ $ sudo make install PREFIX=/usr/local # This is the default prefix
 <p>In particular the abstract objects documentations is described in the Modules
 section of the documentation at
 <a href="https://guillon.github.io/mdi/doc/MDI/v0.2/modules.html">https://guillon.github.io/mdi/doc/MDI/v0.2/modules.html</a>.</p>
+
+<h1>
+<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Examples</h1>
+
+<p>An example implementation for an hypothetical platform called MINI is provided
+in <a href="https://github.com/guillon/mdi/tree/master/examples/mini">https://github.com/guillon/mdi/tree/master/examples/mini</a>.</p>
+
+<h1>
+<a id="references" class="anchor" href="#references" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>References</h1>
+
+<p>Go to Home page at <a href="https://guillon.github.io/mdi">https://guillon.github.io/mdi</a>.</p>
+
+<p>Get documentation at <a href="http://guillon.github.io/mdi/doc/MDI/v0.2">http://guillon.github.io/mdi/doc/MDI/v0.2</a>.</p>
+
+<p>Get sources at <a href="https://github.com/guillon/mdi">https://github.com/guillon/mdi</a>.</p>
+
+<p>Check build status at <a href="https://travis-ci.org/guillon/mdi/branches">https://travis-ci.org/guillon/mdi/branches</a>.</p>
 
 <h1>
 <a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h1>
